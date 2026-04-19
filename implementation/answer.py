@@ -1,9 +1,16 @@
+'''
+It has 2 key functions
+1. fetch_context(question)
+2. answer_question(question, history)
+'''
+
 from pathlib import Path
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.messages import SystemMessage, HumanMessage, convert_to_messages
 from langchain_core.documents import Document
+from langchain_ollama import ChatOllama
 #from dotenv import load_dotenv
 
 #load_dotenv(override=True)
@@ -12,7 +19,8 @@ MODEL = "llama3"
 DB_NAME = str(Path(__file__).parent.parent / "vector_db2")
 
 # frontier model = text-embedding-3-large
-embeddings = OpenAIEmbeddings(model = "BAAI/bge-base-en-v1.5")
+# embeddings = OpenAIEmbeddings(model = "BAAI/bge-base-en-v1.5")
+embeddings = HuggingFaceEmbeddings(model = "BAAI/bge-base-en-v1.5")
 
 RETRIEVAL_K = 10
 
@@ -27,14 +35,15 @@ Context:
 
 vectorstore = Chroma(persist_directory = DB_NAME, embedding_function = embeddings)
 
-retriver = vectorstore.as_retriver()
-llm = ChatOpenAI(temperature = 0, model_name = MODEL)
+retriever = vectorstore.as_retriever()
+#llm = ChatOpenAI(temperature = 0, model_name = MODEL)
+llm = ChatOllama(model = 'llama3', temperature = 0)
 
 def fetch_context(question: str) -> list[Document]:
     """
     Retrieve relevant context documents for a question.
     """
-    return retriver.invoke(question, k=RETRIEVAL_K)
+    return retriever.invoke(question, k=RETRIEVAL_K)
 
 
 def combined_question(question: str, history: list[dict] = []) -> str:

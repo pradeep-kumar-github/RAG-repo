@@ -1,3 +1,10 @@
+'''
+1. Read in Knowledge Base
+2. Turn documents into chunks
+3. Vectorize the chunks
+4. Store in Chroma
+'''
+
 import os
 import glob
 from pathlib import Path
@@ -11,12 +18,14 @@ from dotenv import load_dotenv
 MODEL = "llama3"
 
 DB_NAME = str(Path(__file__).parent.parent / "vector_db2")
-KNOWLEDGE_BASE = str(Path(__file__).parent.parent / "knowledge_base")
+KNOWLEDGE_BASE = str(Path(__file__).parent.parent / "knowledge-base")
 
 # load_dotenv(override=True)
 
 # frontier model = text-embedding-3-large
-embeddings = OpenAIEmbeddings(model = "BAAI/bge-base-en-v1.5")
+#embeddings = OpenAIEmbeddings(model = "MODEL_NAME")
+embeddings = HuggingFaceEmbeddings(model = "BAAI/bge-base-en-v1.5")
+
 
 def fetch_documents():
     documents = []
